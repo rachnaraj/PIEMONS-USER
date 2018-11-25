@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <Button
+        android:id="@+id/take_photos"
+        android:layout_width="139dp"
+        android:layout_height="105dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="46dp"
+        android:layout_marginTop="49dp"
+        android:autoText="true"
+        android:background="#f4846b"
+        android:text="Take Photos"
+        android:textColor="#f6faf8"
+        tools:layout_editor_absoluteX="148dp"
+        tools:layout_editor_absoluteY="105dp" />
+
+    <Button
+        android:id="@+id/upload_photos"
+        android:layout_width="136dp"
+        android:layout_height="105dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/take_photos"
+        android:layout_marginEnd="47dp"
+        android:autoText="true"
+        android:background="#f4846b"
+        android:text="Upload Photos"
+        android:textColor="#f6faf8"
+        tools:layout_editor_absoluteX="148dp"
+        tools:layout_editor_absoluteY="273dp" />
+
+    <Button
+        android:id="@+id/upload_loc"
+        android:layout_width="wrap_content"
+        android:layout_height="105dp"
+        android:layout_alignEnd="@+id/take_photos"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="191dp"
+        android:autoText="true"
+        android:background="#f4846b"
+        android:text="Upload Locations"
+        android:textColor="#f6faf8"
+        tools:layout_editor_absoluteX="148dp"
+        tools:layout_editor_absoluteY="273dp" />
+</RelativeLayout>

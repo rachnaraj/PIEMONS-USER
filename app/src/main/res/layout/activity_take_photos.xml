@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Take_photos">
+
+    <!--<Button-->
+        <!--android:id="@+id/rachna_button"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_marginBottom="23dp"-->
+        <!--android:layout_marginStart="25dp"-->
+        <!--android:onClick="launchCamera"-->
+        <!--android:text="@string/take_photos" />-->
+
+    <ImageView
+        android:id="@+id/rachnaImageView"
+        android:layout_width="400dp"
+        android:layout_height="350dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:minHeight="300dp"
+        android:minWidth="300dp" />
+
+    <Button
+        android:id="@+id/button_upload"
+        android:layout_width="279dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="28dp"
+        android:text="upload" />
+
+    <EditText
+        android:id="@+id/give_file_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="94dp"
+        android:gravity="top"
+        android:hint="Enter File Name"
+        android:inputType="text" />
+
+
+</RelativeLayout>

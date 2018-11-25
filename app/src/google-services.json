@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "199460196510",
+    "firebase_url": "https://databaseapp-ceed7.firebaseio.com",
+    "project_id": "databaseapp-ceed7",
+    "storage_bucket": "databaseapp-ceed7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:199460196510:android:e659110c42ce5b5d",
+        "android_client_info": {
+          "package_name": "com.hfad.databaseapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "199460196510-2jp7h3egdb62t41he59j5oqr6bimtkfs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFuYixsRxax5nkEeuTlA3OHSGSmoi7ge4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
