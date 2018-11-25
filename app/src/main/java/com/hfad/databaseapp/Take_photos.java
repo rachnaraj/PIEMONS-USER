@@ -1,46 +1,36 @@
 package com.hfad.databaseapp;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.Uri;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-
-
-import android.provider.MediaStore;
-import android.graphics.Bitmap;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
-
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
-import android.util.Base64;
 
 
 public class Take_photos extends AppCompatActivity {
 
-    static final int CAMERA_REQUEST_CODE = 1;
+    private static final int CAMERA_REQUEST = 1888;
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
     private ImageView rachnaImageView;
     private EditText mFileName;
     private Button mbuttonUpload;
@@ -49,9 +39,7 @@ public class Take_photos extends AppCompatActivity {
     private ProgressDialog mProgress;
 
 
-
     private Uri mImageUri;
-
 
 
     @Override
@@ -59,64 +47,72 @@ public class Take_photos extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_photos);
 
-
+        mStorage = FirebaseStorage.getInstance().getReference();
 //        mbuttonTake = (Button) findViewById(R.id.rachna_button);
         rachnaImageView = (ImageView) findViewById(R.id.rachnaImageView);
-
         mbuttonUpload = (Button) findViewById(R.id.button_upload);
         mFileName = (EditText) findViewById(R.id.give_file_name);
-
-        mStorage = FirebaseStorage.getInstance().getReference();
-
         mProgress = new ProgressDialog(this);
 
         mbuttonUpload.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
 
-
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    Toast.makeText(getApplicationContext(),"stuck before startActivity",Toast.LENGTH_LONG).show();
-                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
-                    Toast.makeText(getApplicationContext(),"stuck after2 startActivity",Toast.LENGTH_LONG).show();
-                    }
+                if (checkSelfPermission(Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.CAMERA},
+                            MY_CAMERA_PERMISSION_CODE);
+                } else {
+                    Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
                 }
+            }
         });
-        }
+    }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+                Intent cameraIntent = new
+                        Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+
+        }
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Toast.makeText(getApplicationContext(),"stuck after1222 startActivity",Toast.LENGTH_LONG).show();
+        mProgress.setMessage("Uploading Image.....");
+        mProgress.show();
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                Bitmap photo = (Bitmap) data.getExtras().get("data");
+                rachnaImageView.setImageBitmap(photo);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                photo.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] bytes = baos.toByteArray();
+                StorageReference filepath = mStorage.child("photos");
 
-        super.onActivityResult(requestCode, resultCode, data);
-        Toast.makeText(getApplicationContext(),"stuck after startActivity",Toast.LENGTH_LONG).show();
-        if(requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK)
-        {
+                UploadTask uploadTask = filepath.putBytes(bytes);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
 
-//            Bundle extras = data.getExtras();
-//            Bitmap imageBitmap = (Bitmap) extras.get("data");
-//            rachnaImageView.setImageBitmap(imageBitmap);
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        mProgress.dismiss();
+                    }
+                });
+            }
 
-            Toast.makeText(getApplicationContext(),"stuck inside startActivity",Toast.LENGTH_LONG).show();
-            mProgress.setMessage("Uploading Image.....");
-            mProgress.show();
-            Uri uri = data.getData();
-            StorageReference filepath = mStorage.child("photos").child(uri.getLastPathSegment());
-            filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                    mProgress.dismiss();
-
-                Toast.makeText(getApplicationContext(),"Uploading Successful....", Toast.LENGTH_LONG).show();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(),"upload failed...",Toast.LENGTH_SHORT).show();
-                }
-            });
         }
     }
 }

@@ -1,12 +1,10 @@
 package com.hfad.databaseapp;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.provider.MediaStore;
-import android.support.v7.app.ActionBar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,13 +26,12 @@ public class MainActivity extends AppCompatActivity {
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(v.getContext(),uploadActivity.class);
-                startActivityForResult(myIntent,0);
+                Intent myIntent = new Intent(v.getContext(), uploadActivity.class);
+                startActivityForResult(myIntent, 0);
                 //finish();
 
             }
         });
-
 
 
     }
