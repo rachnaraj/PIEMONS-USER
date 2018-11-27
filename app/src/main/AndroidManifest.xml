@@ -2,16 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hfad.databaseapp">
 
+    <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature
+        android:name="android.hardware.camera2"
+        android:required="true" />
 
-    <uses-feature android:name="android.hardware.camera2" android:required="true"> </uses-feature>
-
-    <!--<uses-feature android:name="android.hardware.camera"-->
-        <!--android:required="true" />-->
     <uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-   <uses-permission android:name="android.permission. ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission. ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -20,16 +19,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".Login_Activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".activity_sign_up" />
         <activity android:name=".Take_photos" />
         <activity android:name=".uploadActivity" />
-
+        <activity android:name=".LocationActivity"></activity>
     </application>
 
 </manifest>

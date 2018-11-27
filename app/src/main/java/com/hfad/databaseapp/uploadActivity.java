@@ -1,219 +1,235 @@
 package com.hfad.databaseapp;
 
-import android.content.ContentResolver;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.webkit.MimeTypeMap;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
+
+
+import java.io.IOException;
+
+//import static com.hfad.databaseapp.R.id.getMenuLogout;
+import static com.hfad.databaseapp.R.menu.menu;
 
 
 public class uploadActivity extends AppCompatActivity {
-    public static final int PICK_IMAGE_CHOOSER = 1;
-    private static final int PICK_IMAGE_REQUEST = 1;
-    // declaring variables for taking longitude and latitude..
-    protected LocationManager locationManager;
-    protected LocationListener locationListener;
-    protected Context context;
-    protected String latitude, longitude;
-    protected boolean gps_enabled, network_enabled;
-//    private TextView mUploadText;
-    TextView txtLat;
-    String lat;
-    String provider;
-    private Button mbuttonUpload;
-    private Button mbuttonChoose;
-    private EditText mFileName;
-    private ImageView mImageChoose;
-    private ProgressBar mProgressBar;
-    private Uri mImageUri;
+    private static final int CHOOSE_IMAGE = 101;
 
-    private StorageReference mStorageRef;
-    private DatabaseReference mDatabaseRef, rootRef, demoRef;
 
+    ImageView imageView;
+    EditText editText;
+
+    Uri uriImage;
+    ProgressBar progressBar;
+
+    String ImageUrl;
+
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
-        // taking id value for location..
-        txtLat = (TextView) findViewById(R.id.textview1);
+        mAuth = FirebaseAuth.getInstance();
 
-        mbuttonChoose = (Button) findViewById(R.id.button_choose_image);
-        mbuttonUpload = (Button) findViewById(R.id.button_upload);
-        mFileName = (EditText) findViewById(R.id.give_file_name);
-        mImageChoose = (ImageView) findViewById(R.id.imageUpload);
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar2);
-//        mUploadText = (TextView) findViewById(R.id.text_view_show_uploads);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            // return;
+        editText =  findViewById(R.id.editTextDisplayName);
+        imageView =  findViewById(R.id.imageView);
+        progressBar =  findViewById(R.id.progressbar);
+        // textView =  findViewById(R.id.textViewVerified);
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageChooser();
+            }
+        });
+
+        loadUserInformation();
+
+        findViewById(R.id.buttonSave).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveUserInformation();
+            }
+        });
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mAuth.getCurrentUser() == null) {
+            finish();
+            startActivity(new Intent(this, MainActivity.class));
         }
-        // locationManager.requestLocationUpdates//(LocationManager.GPS_PROVIDER, 0, 0, this);
+    }
 
-        mStorageRef = FirebaseStorage.getInstance().getReference("uploads");
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference("uploads");
+    private void loadUserInformation() {
+        final FirebaseUser user = mAuth.getCurrentUser();
 
-        mbuttonChoose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openFileChooser();
+        if (user != null) {
+            if (user.getPhotoUrl() != null) {
+                Glide.with(this)
+                        .load(user.getPhotoUrl().toString())
+                        .into(imageView);
             }
-        });
 
-
-        mbuttonUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                uploadFile();
-//                //database reference pointing to root of database
-//                rootRef = FirebaseDatabase.getInstance().getReference();
-//                //database reference pointing to demo node
-//                demoRef = rootRef.child("demo");
-//			 String value = txtLat.getText().toString();
-//                //push creates a unique id in database
-//                demoRef.push().setValue(value);
-
+            if (user.getDisplayName() != null) {
+                editText.setText(user.getDisplayName());
             }
-        });
 
-//        mUploadText.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//// need to add logic for showing uploads...
+//            if (user.isEmailVerified()) {
+//                textView.setText("Email Verified");
+//            } else {
+//                textView.setText("Email Not Verified (Click to Verify)");
+//                textView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//                                Toast.makeText(ProfileActivity.this, "Verification Email Sent", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//                    }
+//                });
 //            }
-//        });
-
+        }
     }
 
-    //defining methods for getting location...
-//	@Override
-//	public void onLocationChanged(Location location) {
-//	txtLat = (TextView) findViewById(R.id.textview1);
-//	txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
-//	}
-//
-//	@Override
-//	public void onProviderDisabled(String provider) {
-//	Log.d("Latitude","disable");
-//	}
-//
-//	@Override
-//	public void onProviderEnabled(String provider) {
-//	Log.d("Latitude","enable");
-//	}
-//
-//	@Override
-//	public void onStatusChanged(String provider, int status, Bundle extras) {
-//	Log.d("Latitude","status");
-//	}
+
+    private void saveUserInformation() {
 
 
-    private String getFileExtension(Uri uri) {
-        ContentResolver cR = getContentResolver();
-        MimeTypeMap mime = MimeTypeMap.getSingleton();
-        return mime.getExtensionFromMimeType(cR.getType(uri));
+        String displayName = editText.getText().toString();
 
-    }
+        if (displayName.isEmpty()) {
+            editText.setError("Name required");
+            editText.requestFocus();
+            return;
+        }
 
-    private void uploadFile() {
-        if (mImageUri != null) {
-            StorageReference fileReference = mStorageRef.child(System.currentTimeMillis() + "." + getFileExtension(mImageUri));
-            fileReference.putFile(mImageUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        if (user != null && ImageUrl != null) {
+            UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(displayName)
+                    .setPhotoUri(Uri.parse(ImageUrl))
+                    .build();
+
+            user.updateProfile(profile)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            Handler handler = new Handler();
-
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mProgressBar.setProgress(0);
-                                }
-                            }, 5000);
-
-                            Toast.makeText(getApplicationContext(), "upload successful", Toast.LENGTH_LONG).show();
-
-                            UploadTo upload = new UploadTo(mFileName.getText().toString().trim(),
-                                    taskSnapshot.getDownloadUrl().toString());
-                            String uploadId = mDatabaseRef.push().getKey();
-                            mDatabaseRef.child(uploadId).setValue(upload);
-
-
-                        }
-
-
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                            mProgressBar.setProgress((int) progress);
-
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(uploadActivity.this, "Image Uploaded", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
-
-        } else {
-            Toast.makeText(this, "no file selected", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    //**********************************************************************
-    private void openFileChooser() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, PICK_IMAGE_CHOOSER);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            mImageUri = data.getData();
-            Picasso.with(this).load(mImageUri).into(mImageChoose);
+        if (requestCode == CHOOSE_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            uriImage = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uriImage);
+                imageView.setImageBitmap(bitmap);
 
+                uploadImageToFirebaseStorage();
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    private void uploadImageToFirebaseStorage() {
+        StorageReference profileImageRef =
+                FirebaseStorage.getInstance().getReference("profilepics/" + System.currentTimeMillis() + ".jpg");
+
+        if (uriImage != null) {
+            progressBar.setVisibility(View.VISIBLE);
+            profileImageRef.putFile(uriImage)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressBar.setVisibility(View.GONE);
+                            ImageUrl = taskSnapshot.getDownloadUrl().toString();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(uploadActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.menuLogout:
+                FirebaseAuth.getInstance().signOut();
+                finish();
+                startActivity(new Intent(this, Login_Activity.class));
+
+                break;
+        }
+
+        return true;
+    }
+
+    private void showImageChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), CHOOSE_IMAGE);
+    }
+
 }

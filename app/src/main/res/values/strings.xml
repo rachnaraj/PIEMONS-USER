@@ -1,6 +1,3 @@
 <resources>
-    <string name="app_name">databaseapp</string>
-    <string name="take_photos">Take Photos</string>
-
-
+    <string name="app_name">Databaseapp</string>
 </resources>

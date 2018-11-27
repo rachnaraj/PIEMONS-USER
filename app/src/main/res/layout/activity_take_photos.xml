@@ -8,16 +8,12 @@
     android:layout_height="match_parent"
     tools:context=".Take_photos">
 
-    <!--<Button-->
-        <!--android:id="@+id/rachna_button"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:layout_marginBottom="23dp"-->
-        <!--android:layout_marginStart="25dp"-->
-        <!--android:onClick="launchCamera"-->
-        <!--android:text="@string/take_photos" />-->
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary" />
 
     <ImageView
         android:id="@+id/rachnaImageView"
@@ -36,7 +32,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="28dp"
-        android:text="upload" />
+        android:text=" click and upload"
+        android:background="#95B6CF"/>
 
     <EditText
         android:id="@+id/give_file_name"
